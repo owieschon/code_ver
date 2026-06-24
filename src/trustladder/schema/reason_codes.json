@@ -1,0 +1,13 @@
+{
+  "$comment": "TrustLadder Stage 1 reason-code enum. Single source of truth (ARCHITECTURE.md Sec. 2). Extend ONLY by logged revision (BUILD_NOTES.md entry). Every null (or below-floor) field in a run record MUST be registered in the record's top-level null_reasons map with one of these codes; omission without a reason code is a loosening and the schema validator rejects it.",
+  "codes": {
+    "NOT_APPLICABLE_ARM": "Field has no referent in this arm (e.g., gate_decisions / policy_fingerprint / policy_proof_ref in L0/L1 bare arms — contamination fence: no in-band logging in bare arms).",
+    "DEFERRED_UNSIGNED": "Signing deferred per the VALUABLE-tier pre-named order; signed-receipt field emitted null, field names stable.",
+    "BELOW_MEASUREMENT_FLOOR": "Value unobtainable below the measurement floor; field emits the string \"<FLOOR\" with the floor stated inline (e.g., \"<0.0001\"), per the prereg 7A falsification handle. Registered here because the field is non-numeric, not because it is absent.",
+    "EVAL_CONVERSION_LOSS": "Field unconvertible in the Inspect-compatible .eval export only; never valid in the canonical native record.",
+    "PENDING_GRADING": "Grading has not yet run; verdict / grader_provenance / disagreement (and grading-derived cost columns) not yet populatable.",
+    "PENDING_ADJUDICATION": "A disagreement or contamination/recall flag is open; adjudication ruling not yet written back.",
+    "CHAIN_GENESIS": "First record in the append-only hash chain; prev_record_hash has no predecessor.",
+    "NO_DISAGREEMENT": "Grading complete with no grader disagreement and no adjudication flag; null is the substantive value of the disagreement field (prereg Amendment F types it `null | {...}`), not an unpopulatable field. [LOGGED REVISION 2026-06-12, BUILD_NOTES.md Deliverable 8 — tightening: keeps the every-null-carries-a-reason rule total instead of carving an exemption for disagreement.]"
+  }
+}

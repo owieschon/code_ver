@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TrustLadder Stage 1 verdict-level telemetry event",
+  "$comment": "Prereg v3 Sec. 7A (Amendment D): per verdict event — mechanism (hook | verifier | judge), latency, tokens, dollars, verdict. run_id + ts are harness join keys (arm is joined from records/<run_id>.json at derivation; never duplicated here to avoid contradiction surface). Measure fields (latency_ms, tokens, dollars) admit the below-floor string form \"<FLOOR\" (e.g. \"<0.0001\") per the 7A falsification handle; omission is a loosening. This file is the single source of truth for event shape: telemetry.py validates appends against it, emit_record.py validates costs.verdict_events items against it, derive.py validates reads against it.",
+  "type": "object",
+  "required": ["run_id", "ts", "mechanism", "latency_ms", "tokens", "dollars", "verdict"],
+  "properties": {
+    "run_id": { "type": "string", "minLength": 1 },
+    "ts": { "type": "string", "minLength": 1 },
+    "mechanism": { "enum": ["hook", "verifier", "judge"] },
+    "latency_ms": {
+      "anyOf": [
+        { "type": "number", "minimum": 0 },
+        { "type": "string", "pattern": "^<[0-9]" }
+      ]
+    },
+    "tokens": {
+      "anyOf": [
+        { "type": "integer", "minimum": 0 },
+        { "type": "string", "pattern": "^<[0-9]" }
+      ]
+    },
+    "dollars": {
+      "anyOf": [
+        { "type": "number", "minimum": 0 },
+        { "type": "string", "pattern": "^<[0-9]" }
+      ]
+    },
+    "verdict": { "enum": ["allow", "block", "shadow_would_block", "pass", "fail"] }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "contract": "Training-recall verbatim/near-verbatim heuristics (prereg Sec. 6 TRAINING-RECALL DETECTION, Amendment K). Patterns are regexes over terminal-artifact and transcript text; a hit FLAGS for adjudication (G5) — it never auto-excludes. Extension is a logged revision (BUILD_NOTES + DECISIONS).",
+  "note": "Patterns must be workspace-underivable: the synthetic containers legitimately contain docs/CHANGELOG.md and domain prose like 'handled upstream of farecalc', so bare words (changelog, upstream) are NOT tells. Verified zero hits across all 24 shipped containers at build time (see BUILD_NOTES deliverable-9 section).",
+  "patterns": [
+    {
+      "id": "KF-001-kernel-fixes-trailer",
+      "regex": "(?im)^\\s*#?\\s*Fixes:\\s+[0-9a-f]{7,40}\\b",
+      "note": "Linux-kernel-style 'Fixes: <hash>' patch trailer — cannot derive from a synthetic workspace."
+    },
+    {
+      "id": "KF-002-signed-off-trailer",
+      "regex": "(?im)^\\s*#?\\s*(?:Signed-off-by|Reported-by|Reviewed-by|Acked-by):\\s+\\S+",
+      "note": "Public patch-trailer lines copied from an upstream commit message."
+    },
+    {
+      "id": "KF-003-upstream-issue-ref",
+      "regex": "(?i)\\b(?:closes|fixes|resolves)\\s+(?:upstream\\s+)?(?:issue\\s+)?#\\d{2,6}\\b.*\\bupstream\\b",
+      "note": "References an upstream issue tracker number — none exists for these invented repos."
+    },
+    {
+      "id": "KF-004-oss-project-namedrop",
+      "regex": "(?i)\\b(?:as|like|per|from)\\s+(?:the\\s+)?(?:cpython|django|flask|numpy|openssl|curl|linux kernel)\\b.*\\b(?:fix|patch|commit|pr)\\b",
+      "note": "Attributes the change to a named public project's fix/patch."
+    }
+  ]
+}

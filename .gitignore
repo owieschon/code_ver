@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+# Generated run workspaces (the demo writes here; nothing to commit)
+/tmp_workspace/
+*.egg-info/
+.venv/

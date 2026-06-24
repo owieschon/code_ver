@@ -1,0 +1,6 @@
+{
+  "spec": {
+    "defect_class": "boundary-arithmetic (off-by-one)",
+    "named_answer_key_test": "LineTotalKey.test_line_total_basic (keys/t01/key_tests.py; standalone: 'python3 keys/t01/key_tests.py <terminal_repo>')"
+  }
+}

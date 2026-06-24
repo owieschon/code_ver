@@ -1,0 +1,4 @@
+# GitHub Linguist classifies SQL as a data language, which is excluded from the
+# language stats by default. The .sql files here are real, hand-written queries
+# (analysis/sql/), so count them.
+*.sql linguist-detectable=true

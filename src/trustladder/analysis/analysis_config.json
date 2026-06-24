@@ -1,0 +1,25 @@
+{
+  "_authority": "PREREGISTRATION_v3_trustladder.md Secs. 9-11; DECISIONS.md T-D1; harness/ARCHITECTURE.md Sec. 5",
+  "k1_floor_pp": 20,
+  "k1_floor_citation": "DECISIONS.md T-D1 — K1 floor RATIFIED at 20pp absolute (2026-06-12, the operator); fills the [RATIFY] slot in prereg Sec. 10(a); the number does not move after freeze",
+  "min_severity_for_m1": "SEV2",
+  "m0_noninferiority_margin_pp": 5.56,
+  "m0_noninferiority_margin_citation": "M0 non-inferiority margin = 5.56pp absolute (~100/18 = one task's completion out of the 18-task primary battery), ratified pre-freeze (DECISIONS T-D35/T-D36); fixed after freeze.",
+  "m0_noninferiority_mode": "point",
+  "ci_method_primary": "BCa",
+  "bootstrap": {
+    "n_resamples": 5000,
+    "seed": 1906,
+    "ci_level": 0.95
+  },
+  "vg1_min_separation_pp": 0.0,
+  "vg2_material_diff_pp": 33.4,
+  "vg3_band_pp": [25, 85],
+  "vg4_kappa_min": 0.6,
+  "vg5_material_diff_pp": 16.7,
+  "_vg_quanta_citation": "VG1/VG2/VG5 quanta ratified 2026-06-13 to their documented principled defaults per owner's do-the-work directive; owner may override before the freeze tag. vg1=any positive separation, vg2=33.4pp (>1 of 3 nc), vg5=16.7pp (>3 of 18 runs).",
+  "lure_defect_prefix": "LURE-",
+  "_registered_parameters": ["k1_floor_pp (T-D1)", "m0_noninferiority_margin_pp (T-D35/T-D36, 5.56pp owner-ratified)", "m0_noninferiority_mode (T-D37, point — gate keys on point estimate; ci too wide at n=18)", "min_severity_for_m1 (Sec. 7 M1)", "vg3_band_pp (Sec. 11 VG3)", "vg4_kappa_min (Sec. 11 VG4)", "ci_method_primary (T-D34, BCa = the small-n estimator fix)"],
+  "_ci_method_note": "ci_method_primary selects the interval the three-outcome rule reads (BCa|percentile|newcombe). DEFAULT = BCa (T-D34 small-n fix): the plain percentile bootstrap under-covers at n=18, so BCa (bias-corrected + accelerated, Efron 1987) is the better-behaved PRIMARY interval; it is still a bootstrap, so AP2 ('effect sizes with bootstrap CIs primary') is honored. The percentile interval is computed and reported alongside as a labeled SECONDARY/diagnostic with a coverage note, and an analytic Newcombe paired-difference interval is also reported, so nothing is hidden. All three read the IDENTICAL deterministic resample set; only the quantiles differ. The three-outcome verdict reads off the PRIMARY (BCa).",
+  "_m0_noninferiority_note": "T-D34 built the test (M0 (L3-minus-L1 completion) difference CI by the same BCa method as M1, ALWAYS computed + reported; two selectable gate modes). T-D35/T-D36 set the VALUE: margin RATIFIED at 5.56pp = one task's worth of completion out of 18 (see m0_noninferiority_margin_citation; T-D36 corrected an interim builder error that mislabeled 5.56 'fabricated' and overwrote it with 5.0 — retracted, restored). GATE MODE RATIFIED = 'point' (T-D37/owner): non-inferior iff the point estimate >= -margin, i.e. L3 may complete at most one fewer task than L1. WHY point not 'ci': the 5.56pp = one-task tolerance the value encodes only holds under point at n=18; in 'ci' mode the M0 difference CI is ~+-28pp at this n, so 'ci' + 5.56 collapses to 'requires near-identical completion' (one task down -> CI lower bound ~-33pp, fails), which contradicts the registered one-task intent. 'ci' is retained in code as the symmetric-with-M1 reading for larger n; at Stage-1 n it is not used. The M0 CI is reported either way."
+}

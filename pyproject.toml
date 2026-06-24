@@ -1,0 +1,48 @@
+# TrustLadder evaluation harness — packaging.
+#
+# Deliberately standard-library-only so a run reproduces without a dependency
+# tree. The single optional dependency, `cryptography`, is used for Ed25519
+# record signing and falls back to the `openssl` CLI when absent — so nothing
+# here is required to run the offline analysis.
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trustladder"
+version = "0.1.0"
+description = "Evaluation harness for a preregistered study on whether enforced governance reduces an AI coding agent's safety escapes."
+requires-python = ">=3.10"          # uses structural pattern matching (match/case)
+dependencies = []                    # standard library only
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+
+[project.optional-dependencies]
+signing = ["cryptography>=41"]       # Ed25519; optional — openssl CLI fallback exists
+dev = ["pytest>=7", "ruff>=0.4"]
+
+[project.scripts]
+trustladder-analyze = "trustladder.analysis.analysis:main"
+trustladder-report = "trustladder.analysis.sql_report:main"
+trustladder-mini-run = "trustladder.demo.mini_pipeline:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"trustladder.analysis" = ["sql/*.sql"]
+"trustladder.demo" = ["fixture/**/*.py", "fixture/**/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# Default rules (pyflakes F + pycodestyle E4/E7/E9). E402 is waived: a few
+# modules compute module-level path constants before importing sibling
+# modules — a deliberate, harmless pattern, not dead code.
+ignore = ["E402"]

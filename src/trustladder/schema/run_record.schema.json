@@ -1,0 +1,201 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TrustLadder Stage 1 run record (canonical, one per run)",
+  "$comment": "Field names FROZEN by ARCHITECTURE.md Sec. 2 (authority: PREREGISTRATION_v3_trustladder.md Sec. 7A, Amendments D/F/v3.1). Schema slimming is a loosening (prereg 7A). Identity keys are harness keys, additive — they never replace the nine required Amendment-F fields. NULL CONVENTION (frozen): an unpopulatable field is emitted as null AND registered in top-level null_reasons {<field_path>: <REASON_CODE>}; codes live in schema/reason_codes.json; omission without a reason code is a loosening and the validator rejects it. The null_reasons coverage rule and the verdict_events item shape (schema/telemetry_event.schema.json) are enforced by emit_record.py in code, because plain JSON Schema cannot express them; emit_record.py is the required validation entry point.",
+  "type": "object",
+  "required": [
+    "run_id", "task_id", "arm", "stratum", "family", "batch",
+    "model_id", "cli_version", "started_at", "ended_at",
+    "turn_budget", "tree_hash", "transcript_ref", "ls_audit_ref",
+    "claim", "evidence_refs", "gate_decisions",
+    "policy_fingerprint", "policy_proof_ref", "costs", "verdict",
+    "grader_provenance", "disagreement",
+    "record_hash", "prev_record_hash", "signature", "signer_key_id",
+    "null_reasons"
+  ],
+  "properties": {
+    "run_id": { "type": "string", "minLength": 1 },
+    "task_id": { "type": "string", "minLength": 1 },
+    "arm": { "enum": ["L0", "L1", "SHAM", "L3"] },
+    "stratum": { "enum": ["TYPICAL", "NOVEL"] },
+    "family": { "type": "string", "minLength": 1 },
+    "batch": { "enum": ["primary", "reserve", "pc", "nc", "varprobe"] },
+    "model_id": { "type": "string", "minLength": 1 },
+    "cli_version": { "type": "string", "minLength": 1 },
+    "started_at": { "type": "string", "minLength": 1 },
+    "ended_at": { "anyOf": [ { "type": "string", "minLength": 1 }, { "type": "null" } ] },
+    "turn_budget": {
+      "type": "object",
+      "required": ["limit", "used"],
+      "properties": {
+        "limit": { "type": "integer", "minimum": 1 },
+        "used": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "tree_hash": { "anyOf": [ { "type": "string", "minLength": 1 }, { "type": "null" } ] },
+    "transcript_ref": { "anyOf": [ { "type": "string", "minLength": 1 }, { "type": "null" } ] },
+    "ls_audit_ref": { "anyOf": [ { "type": "string", "minLength": 1 }, { "type": "null" } ] },
+
+    "claim": {
+      "$comment": "Agent's terminal completion claim, structured. Substructure minimally specified (prereg 7A: serialization OPEN); additive fields allowed. claimed_done is the determinate signal derive.py uses for cost-per-claimed-completion.",
+      "anyOf": [
+        {
+          "type": "object",
+          "required": ["claimed_done", "text", "ts"],
+          "properties": {
+            "claimed_done": { "type": "boolean" },
+            "text": { "type": "string" },
+            "ts": { "type": "string", "minLength": 1 }
+          }
+        },
+        { "type": "null" }
+      ]
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "gate_decisions": {
+      "$comment": "From in-band gate logs, SHAM/L3 only; null + NOT_APPLICABLE_ARM for bare arms (contamination fence: no in-band logging in L0/L1).",
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["ts", "mechanism", "rule", "decision", "latency_ms", "tokens", "dollars", "context_ref"],
+            "properties": {
+              "ts": { "type": "string", "minLength": 1 },
+              "mechanism": { "enum": ["hook", "verifier", "judge"] },
+              "rule": { "type": "string", "minLength": 1 },
+              "decision": { "enum": ["allow", "block", "shadow_would_block"] },
+              "latency_ms": { "anyOf": [ { "type": "number", "minimum": 0 }, { "type": "string", "pattern": "^<[0-9]" } ] },
+              "tokens": { "anyOf": [ { "type": "integer", "minimum": 0 }, { "type": "string", "pattern": "^<[0-9]" } ] },
+              "dollars": { "anyOf": [ { "type": "number", "minimum": 0 }, { "type": "string", "pattern": "^<[0-9]" } ] },
+              "context_ref": { "anyOf": [ { "type": "string", "minLength": 1 }, { "type": "null" } ] }
+            }
+          }
+        },
+        { "type": "null" }
+      ]
+    },
+    "policy_fingerprint": {
+      "$comment": "Kit fingerprint in force during the run; null + NOT_APPLICABLE_ARM in bare arms (no kit in force).",
+      "anyOf": [ { "type": "string", "minLength": 1 }, { "type": "null" } ]
+    },
+    "policy_proof_ref": {
+      "$comment": "Pointer to that fingerprint's demonstrated-red (adversarial eval pass) record — the decider's BEFORE-the-fact proof. Null + NOT_APPLICABLE_ARM in bare arms.",
+      "anyOf": [ { "type": "string", "minLength": 1 }, { "type": "null" } ]
+    },
+    "costs": {
+      "type": "object",
+      "required": ["tokens_in", "tokens_out", "dollars", "wall_clock_s", "verdict_events", "cost_per_verified_completion", "cost_per_claimed_completion"],
+      "properties": {
+        "tokens_in": { "anyOf": [ { "type": "integer", "minimum": 0 }, { "type": "string", "pattern": "^<[0-9]" } ] },
+        "tokens_out": { "anyOf": [ { "type": "integer", "minimum": 0 }, { "type": "string", "pattern": "^<[0-9]" } ] },
+        "dollars": { "anyOf": [ { "type": "number", "minimum": 0 }, { "type": "string", "pattern": "^<[0-9]" } ] },
+        "wall_clock_s": { "anyOf": [ { "type": "number", "minimum": 0 }, { "type": "string", "pattern": "^<[0-9]" } ] },
+        "verdict_events": {
+          "$comment": "Per-verdict telemetry, item shape authoritative in schema/telemetry_event.schema.json; emit_record.py validates each item against it (single source of truth).",
+          "type": "array",
+          "items": { "type": "object" }
+        },
+        "cost_per_verified_completion": {
+          "$comment": "Derived column computed PER ARM at analysis (derive.py); per-run raw lives here, so per-run value is null + PENDING_GRADING until grading lands, then per-arm at analysis.",
+          "anyOf": [ { "type": "number", "minimum": 0 }, { "type": "null" } ]
+        },
+        "cost_per_claimed_completion": {
+          "anyOf": [ { "type": "number", "minimum": 0 }, { "type": "null" } ]
+        }
+      }
+    },
+    "verdict": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": ["m0_complete", "first_claim_failed", "escapes", "claims_table_ref"],
+          "properties": {
+            "m0_complete": { "type": "boolean" },
+            "first_claim_failed": { "type": "boolean" },
+            "escapes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["defect_id", "sev", "escaped"],
+                "properties": {
+                  "defect_id": { "type": "string", "minLength": 1 },
+                  "sev": { "enum": ["SEV1", "SEV2", "SEV3", "SEV4"] },
+                  "escaped": { "type": "boolean" }
+                }
+              }
+            },
+            "claims_table_ref": { "type": "string", "minLength": 1 }
+          }
+        },
+        { "type": "null" }
+      ]
+    },
+    "grader_provenance": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": ["grader_model", "session_id", "blind_to_arm", "calibration_receipt_ref"],
+          "properties": {
+            "grader_model": { "type": "string", "minLength": 1 },
+            "session_id": { "type": "string", "minLength": 1 },
+            "blind_to_arm": { "type": "boolean" },
+            "calibration_receipt_ref": { "type": "string", "minLength": 1 }
+          }
+        },
+        { "type": "null" }
+      ]
+    },
+    "disagreement": {
+      "$comment": "null | {...} per prereg Amendment F. Null carries NO_DISAGREEMENT (grading clean), PENDING_GRADING (not yet graded), or PENDING_ADJUDICATION via the populated form's null adjudication.",
+      "anyOf": [
+        {
+          "type": "object",
+          "required": ["second_grader", "packet_ref", "adjudication"],
+          "properties": {
+            "second_grader": { "type": "string", "minLength": 1 },
+            "packet_ref": { "type": "string", "minLength": 1 },
+            "adjudication": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "required": ["ruling", "rationale_ref"],
+                  "properties": {
+                    "ruling": { "type": "string", "minLength": 1 },
+                    "rationale_ref": { "type": "string", "minLength": 1 }
+                  }
+                },
+                { "type": "null" }
+              ]
+            }
+          }
+        },
+        { "type": "null" }
+      ]
+    },
+
+    "record_hash": {
+      "$comment": "SHA256 over canonical record minus the four receipt fields. Default-on; unsigned emits null + DEFERRED_UNSIGNED (VALUABLE-tier deferral changes no field names).",
+      "anyOf": [ { "type": "string", "pattern": "^[0-9a-f]{64}$" }, { "type": "null" } ]
+    },
+    "prev_record_hash": {
+      "$comment": "Append-only hash chain; genesis: null + CHAIN_GENESIS.",
+      "anyOf": [ { "type": "string", "pattern": "^[0-9a-f]{64}$" }, { "type": "null" } ]
+    },
+    "signature": {
+      "$comment": "Ed25519 over record_hash. What it proves and does not prove: SCHEMA_DOCS.md (verbatim prereg 7A rationale of record).",
+      "anyOf": [ { "type": "string", "minLength": 1 }, { "type": "null" } ]
+    },
+    "signer_key_id": {
+      "anyOf": [ { "type": "string", "minLength": 1 }, { "type": "null" } ]
+    },
+
+    "null_reasons": {
+      "type": "object",
+      "$comment": "Map of <field_path> (dot-path) -> reason code from schema/reason_codes.json. Coverage (every null or below-floor field registered; no stale entries; codes valid) is enforced by emit_record.py."
+    }
+  }
+}
